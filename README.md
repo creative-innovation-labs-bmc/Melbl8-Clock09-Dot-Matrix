@@ -2,19 +2,22 @@
 
 Aurecon dot-matrix gallery clock for the native 3840×804 Melbourne display, optimised for Enplug on NVIDIA Shield.
 
-## Current pass
-- HH:MM:SS with mathematically equal colon spacing
+## Current production direction
+- Variant C promoted to the clean default URL
+- HH:MM:SS with equal spacing around both colons
+- Larger 5×5 colon blocks
+- Colon pulse travels from top to bottom once every second
 - Denser matrix and heavier digit strokes
-- Five-dot-high bottom information band with one-row lower margin
+- Five-dot-high bottom information band
 - Left: day and date
-- Right: Docklands + live BOM observation data
-- BOM Docklands location API with official Melbourne (Olympic Park) JSON fallback
-- Temperature, humidity and wind shown in the footer band
+- Right: Docklands + BOM temperature, humidity and wind
+- GitHub Pages workflow generates a same-origin `weather.json` from BOM every 10 minutes
+- Browser BOM calls and local cache remain as fallbacks
 - 30 fps cap for Shield safety
 
 ## Pages
-- `index.html` production candidate
+- `index.html` production candidate, based on C
 - `variant-a.html` wide bold
 - `variant-b.html` dense kinetic
-- `variant-c.html` graphic compact
+- `variant-c.html` production direction
 - `compare.html` review page
