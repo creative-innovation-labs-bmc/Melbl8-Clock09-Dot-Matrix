@@ -233,13 +233,23 @@
       return map;
     }
 
+    function weatherTokens(includeHumidity=true) {
+      if (!weather) return ['DOCKLANDS', weatherState];
+      const tempValue = Number(weather.temp);
+      const humidityValue = Number(weather.humidity);
+      const speedValue = Number(weather.speed);
+      const dir = String(weather.direction || '').replace(/[^A-Z]/gi,'').toUpperCase();
+      const temp = Number.isFinite(tempValue) ? `${Math.round(tempValue)}C` : '';
+      const humid = includeHumidity && Number.isFinite(humidityValue) ? `${Math.round(humidityValue)}%` : '';
+      let wind = '';
+      if (dir && Number.isFinite(speedValue)) wind = `${dir} ${Math.round(speedValue)}K`;
+      else if (dir) wind = dir;
+      else if (Number.isFinite(speedValue)) wind = `${Math.round(speedValue)}K`;
+      return ['DOCKLANDS', temp, humid, wind].filter(Boolean);
+    }
+
     function weatherText() {
-      if (!weather) return `DOCKLANDS ${weatherState}`;
-      const temp = weather.temp == null ? '--C' : `${Math.round(Number(weather.temp))}C`;
-      const dir = String(weather.direction || '').replace(/[^A-Z]/gi,'').toUpperCase() || 'W';
-      const speed = weather.speed == null ? '--' : Math.round(Number(weather.speed));
-      const humid = weather.humidity == null ? '--%' : `${Math.round(Number(weather.humidity))}%`;
-      return `DOCKLANDS ${temp} ${humid} ${dir}${speed}`;
+      return weatherTokens(true).join(' ');
     }
 
     function rebuildFooter(parts) {
@@ -254,7 +264,7 @@
       if (maxRightStart > leftMargin + lW + 4) {
         putMini(footer, rightText, maxRightStart, row, 'weather');
       } else {
-        const compact = weather ? `DOCKLANDS ${Math.round(Number(weather.temp||0))}C ${String(weather.direction||'W').toUpperCase()}${Math.round(Number(weather.speed||0))}` : 'DOCKLANDS';
+        const compact = weatherTokens(false).join(' ');
         putMini(footer, compact, cfg.cols-rightMargin-miniWidth(compact), row, 'weather');
       }
     }
