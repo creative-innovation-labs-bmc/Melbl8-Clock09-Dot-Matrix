@@ -5,16 +5,15 @@ Aurecon dot-matrix gallery clock for the 3840×804 Melbourne display, optimised 
 ## Live pages
 
 - `index.html` – default production candidate
-- `variant-a.html` – balanced sweep
-- `variant-b.html` – kinetic wave
-- `variant-c.html` – strong scan
+- `variant-a.html` – integrated grid
+- `variant-b.html` – dense kinetic
+- `variant-c.html` – clean graphic
 - `compare.html` – comparison page for review
 
 ## Current direction
 
 - True 3840 × 804 composition
 - HH:MM:SS dot-matrix layout
-- Melbourne timezone
-- Bottom information band
-- 30 fps animation cap for NVIDIA Shield
-- noindex / nofollow / noarchive
+- Denser matrix so the digits sit inside the field more convincingly
+- 30 fps cap for Shield safety
+- Melbourne timezone and bottom information band
