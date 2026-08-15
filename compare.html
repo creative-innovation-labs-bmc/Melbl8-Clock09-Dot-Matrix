@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <title>Clock 09 Compare</title>
+  <style>
+    :root { --bg:#1c1b1c; --panel:#2a2d29; --text:#fff; --green:#89C925; }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding:20px}
+    h1{margin:0 0 8px;font-size:28px;letter-spacing:.08em;text-transform:uppercase}
+    p{margin:0 0 18px;color:rgba(255,255,255,.8)}
+    .links{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+    .links a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.2);padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.04)}
+    .grid{display:grid;grid-template-columns:1fr;gap:18px}
+    .card{background:var(--panel);padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.08)}
+    .card h2{margin:0 0 10px;font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+    iframe{width:100%;aspect-ratio:3840/804;border:0;background:#373A36;border-radius:10px}
+  </style>
+</head>
+<body>
+  <h1>Clock 09 Dot Matrix Comparison</h1>
+  <p>Three live animation directions to compare on mobile and on the wall.</p>
+  <div class="links">
+    <a href="./index.html">Default</a>
+    <a href="./variant-a.html">Version A</a>
+    <a href="./variant-b.html">Version B</a>
+    <a href="./variant-c.html">Version C</a>
+  </div>
+  <div class="grid">
+    <div class="card"><h2>Version A · Balanced Sweep</h2><iframe src="./variant-a.html"></iframe></div>
+    <div class="card"><h2>Version B · Kinetic Wave</h2><iframe src="./variant-b.html"></iframe></div>
+    <div class="card"><h2>Version C · Strong Scan</h2><iframe src="./variant-c.html"></iframe></div>
+  </div>
+</body>
+</html>
