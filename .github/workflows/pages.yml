@@ -30,10 +30,11 @@ jobs:
         run: |
           python3 - <<'PY'
           import datetime
+          import ftplib
+          import io
           import json
           import urllib.request
 
-          url = "https://www.bom.gov.au/fwo/IDV60901/IDV60901.95936.json"
           now = datetime.datetime.now(datetime.timezone.utc).isoformat()
           out = {
               "source": "BOM",
@@ -46,32 +47,69 @@ jobs:
               "speed": None,
               "rain": None,
           }
+          errors = []
 
-          try:
-              req = urllib.request.Request(
-                  url,
-                  headers={
-                      "User-Agent": "Mozilla/5.0 Clock09-GitHub-Pages/1.0",
-                      "Accept": "application/json,text/plain,*/*",
-                  },
-              )
-              with urllib.request.urlopen(req, timeout=20) as response:
-                  payload = json.load(response)
+          def apply_payload(payload):
               rows = payload.get("observations", {}).get("data", [])
-              if rows:
-                  row = rows[0]
-                  out.update({
-                      "status": "live",
-                      "station": row.get("name") or "Melbourne (Olympic Park)",
-                      "temp": row.get("air_temp"),
-                      "humidity": row.get("rel_hum"),
-                      "direction": row.get("wind_dir"),
-                      "speed": row.get("wind_spd_kmh"),
-                      "rain": row.get("rain_trace"),
-                      "observed_at": row.get("aifstime_utc") or row.get("local_date_time_full"),
+              if not rows:
+                  return False
+              row = rows[0]
+              out.update({
+                  "status": "live",
+                  "station": row.get("name") or "Melbourne (Olympic Park)",
+                  "temp": row.get("air_temp"),
+                  "humidity": row.get("rel_hum"),
+                  "direction": row.get("wind_dir"),
+                  "speed": row.get("wind_spd_kmh"),
+                  "rain": row.get("rain_trace"),
+                  "observed_at": row.get("aifstime_utc") or row.get("local_date_time_full"),
+              })
+              return any(out[k] is not None for k in ("temp", "humidity", "speed"))
+
+          # First try the published BOM JSON over HTTPS/HTTP.
+          for url in (
+              "https://www.bom.gov.au/fwo/IDV60901/IDV60901.95936.json",
+              "http://www.bom.gov.au/fwo/IDV60901/IDV60901.95936.json",
+              "https://www.bom.gov.au/fwo/IDV60910/IDV60910.95936.json",
+          ):
+              if out["status"] == "live":
+                  break
+              try:
+                  req = urllib.request.Request(url, headers={
+                      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36",
+                      "Accept": "application/json,text/plain,*/*",
+                      "Referer": "https://www.bom.gov.au/",
                   })
-          except Exception as exc:
-              out["error"] = str(exc)[:180]
+                  with urllib.request.urlopen(req, timeout=20) as response:
+                      payload = json.load(response)
+                  apply_payload(payload)
+              except Exception as exc:
+                  errors.append(f"HTTP {url}: {exc}")
+
+          # BOM also publishes anonymous FTP products. This avoids HTTP bot/CORS restrictions.
+          if out["status"] != "live":
+              ftp_names = (
+                  "IDV60901.95936.json",
+                  "IDV60910.95936.json",
+              )
+              try:
+                  with ftplib.FTP("ftp.bom.gov.au", timeout=25) as ftp:
+                      ftp.login()
+                      ftp.cwd("/anon/gen/fwo")
+                      for name in ftp_names:
+                          try:
+                              buf = io.BytesIO()
+                              ftp.retrbinary(f"RETR {name}", buf.write)
+                              payload = json.loads(buf.getvalue().decode("utf-8-sig"))
+                              if apply_payload(payload):
+                                  break
+                          except Exception as exc:
+                              errors.append(f"FTP {name}: {exc}")
+              except Exception as exc:
+                  errors.append(f"FTP connect: {exc}")
+
+          if out["status"] != "live":
+              out["error"] = " | ".join(errors)[-500:]
 
           with open("weather.json", "w", encoding="utf-8") as handle:
               json.dump(out, handle, ensure_ascii=False, separators=(",", ":"))
