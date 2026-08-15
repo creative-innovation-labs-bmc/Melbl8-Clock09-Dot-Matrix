@@ -22,6 +22,7 @@
       canvasId: 'clock-canvas',
       cols: 156,
       rows: 30,
+      glyphScale: 2,
       idleAlpha: 0.07,
       progressAlpha: 0.11,
       activeAlpha: 0.95,
@@ -78,17 +79,25 @@
     function build(chars) {
       const map = new Set();
       meta = [];
-      const gw = 7, gh = 11, gap = 2;
-      const total = chars.length * gw + (chars.length - 1) * gap;
+      const gw = 7, gh = 11, scale = settings.glyphScale, gap = 2;
+      const glyphWidth = gw * scale;
+      const glyphHeight = gh * scale;
+      const total = chars.length * glyphWidth + (chars.length - 1) * gap;
       const startCol = Math.floor((settings.cols - total) / 2);
-      const startRow = 8;
+      const startRow = Math.max(1, Math.floor((settings.rows - glyphHeight) / 2) - 1);
+
       chars.forEach((ch, i) => {
         const pattern = GLYPHS[ch] || GLYPHS['0'];
-        const left = startCol + i * (gw + gap);
-        meta.push({left, right:left+gw-1, colon: ch === ':'});
+        const left = startCol + i * (glyphWidth + gap);
+        meta.push({left, right:left+glyphWidth-1, colon: ch === ':'});
         for (let r=0; r<gh; r++) {
           for (let c=0; c<gw; c++) {
-            if (pattern[r][c] === '1') map.add(`${left+c},${startRow+r}`);
+            if (pattern[r][c] !== '1') continue;
+            for (let sy=0; sy<scale; sy++) {
+              for (let sx=0; sx<scale; sx++) {
+                map.add(`${left + c*scale + sx},${startRow + r*scale + sy}`);
+              }
+            }
           }
         }
       });
